@@ -9,9 +9,9 @@ exports.showHelp = function(){
     log('Usage: webss [options]');
     log('\n')
     log('Options: ')
-    log('  setup      download maven and tomcat, and deploy')
+    log('  setup      download maven and tomcat')
     log('  deploy     mvn package project, deploy war to tomcat dir')
     log('  server     start tomcat server')
-    log('  watch      synch files of webproject to tomcat webapps dir')
+    log('  run        synch files of webproject to tomcat webapps dir, and start proxy')
     log('\n\n\n')
 };

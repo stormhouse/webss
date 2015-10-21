@@ -63,11 +63,11 @@ exports.download = function(callback){
     }
 
     run(function * G(resume){
-        yield downloadFile(config.tomcatUrl, config.homePath, config.tomcatName, resume)
-        yield downloadFile(config.mvnUrl, config.homePath, config.mvnName, resume)
-        yield decompressMaven(resume)
-        callback()
-    })
+        yield downloadFile(config.tomcatUrl, config.homePath, config.tomcatName, resume);
+        yield downloadFile(config.mvnUrl, config.homePath, config.mvnName, resume);
+        yield decompressMaven(resume);
+        callback();
+    });
 
 
     //if(!fs.existsSync('./webss.json')){
