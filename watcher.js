@@ -48,10 +48,12 @@ cp.exec('java -version', {cwd: config.currentPath}, function (error, stdout, std
             })
         }else if(arg === 'server'){
             shutdownTomcat(startupTomcat);
-        }else if(arg === 'watch'){
+        }else if(arg === 'run'){
             synchFiles();
-        }else if(arg === 'proxy'){
-            transfer.transfer();
+            setTimeout(function(){
+                console.log('\n\n')
+                transfer.transfer();
+            }, 5000)
         }else{
             util.showHelp();
         }

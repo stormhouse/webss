@@ -11,8 +11,8 @@ var configStr = '{\n' +
     '    "servers": [{\n' +
     '        "url": "http://127.0.0.1:8888/",\n' +
     '        "localPort": "5050",\n' +
-    '        "desc": "local server"' +
-    '    }]' +
+    '        "desc": "local server"\n' +
+    '    }]\n' +
     '}';
 if(!fs.existsSync('./webss.json'))
     fs.writeFileSync('./webss.json', configStr);

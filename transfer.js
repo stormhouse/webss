@@ -5,16 +5,7 @@ var http = require('http'),
 
 var config = require('./config.js');
 
-//
-// Create a proxy server with custom application logic
-//
 var proxy = httpProxy.createProxyServer({});
-
-//
-// Create your custom server and just call `proxy.web()` to proxy
-// a web request to the target passed in the options
-// also you can use `proxy.ws()` to proxy a websockets request
-//
 
 var exports = module.exports = {};
 exports.transfer = function (){
@@ -22,19 +13,18 @@ exports.transfer = function (){
         var server = http.createServer(function(req, res) {
             var startIndex = req.url.indexOf('portal/');
             if( startIndex > -1){
-                res.writeHead(200, {'source': 'from webss' });
-                console.log(req.url+'---------')
                 var p = path.join(path.resolve('./') , config.webPath,  '/src/main/webapp/', req.url.substring(startIndex, req.url.length))
                 //p = p.replace(/\?v=\d?[\.\-]\d?/, '');
-
                 p = p.substring(0,p.indexOf('?v=') > -1 ? p.indexOf('?v=') : p.length)
-                console.log(p)
                 fs.readFile(p, function(error, data){
-                    if(error){
-                        console.log(p+'=========')
-                        console.log(error)
 
+                    if(error){
+                        console.log(error)
+                        res.writeHead(404, {'source': 'from webss' });
+                        res.write('404 not found ');
+                        res.end();
                     }else{
+                        res.writeHead(200, {'source': 'from webss' });
                         res.write(data);
                         res.end();
                     }
@@ -42,8 +32,6 @@ exports.transfer = function (){
                 })
 
             }else {
-                console.log(req.url)
-                console.log(objServer.url)
                 proxy.web(req, res, {target: objServer.url});
             }
         });

@@ -83,6 +83,10 @@ exports.deploy = function(callback) {
                             } else {
                                 if (stdout.indexOf('BUILD SUCCESS') > -1) {
                                     console.log(stdout);
+                                    if(!fs.existsSync(config.sourceWar)){
+                                        console.error('error: ' + config.sourceWar + ' is not found!!!  please check "contextName && webPath" in webss.json');
+                                        return
+                                    }
                                     cpy([config.sourceWar], path.join(config.tomcatHome, '/webapps'), function (err) {
                                         console.log('info: deploy : \n' + config.sourceWar + ' succeed ')
                                         console.log('    ' + path.join(config.tomcatHome, '/webapps'))
