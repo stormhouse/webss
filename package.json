@@ -1,0 +1,44 @@
+{
+  "name": "webss",
+  "version": "0.0.1",
+  "description": "development",
+  "author": {
+    "name": "stormhouse"
+  },
+  "license": "MIT",
+  "main": "./watcher.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=4.2.0"
+  },
+  "bin": {
+    "webss": "./watcher.js"
+  },
+  "devDependencies": {
+    "chokidar": "^1.2.0",
+    "cpy": "^3.4.1",
+    "del": "^2.0.2",
+    "q": "^2.0.2",
+    "download": "^4.2.1",
+    "decompress": "^3.0.0",
+    "http-proxy": "^1.11.1"
+  },
+  "dependencies": {
+    "chokidar": "^1.2.0",
+    "cpy": "^3.4.1",
+    "del": "^2.0.2",
+    "q": "^2.0.2",
+    "download": "^4.2.1",
+    "decompress": "^3.0.0",
+    "http-proxy": "^1.11.1"
+  },
+  "readme": "## webss\r\ntools of develop JavaWeb Project(base on maven) for Front-End Developer\r\n\r\n## webss.json\r\n```\r\n{\r\n    \"contextName\": \"weixin\",\r\n    \"webPath\": \"/\",\r\n    \"port\": \"8080\"\r\n}\r\n```\r\n",
+  "readmeFilename": "README.md",
+  "gitHead": "44053ced7298171e8264ef00710c08d72060d189",
+  "_id": "webss@0.0.1",
+  "_shasum": "2f356adec775ee96da3f61758094afaca4b9f4fe",
+  "_from": "E:\\webtool",
+  "_resolved": "file:E:\\webtool"
+}
