@@ -56,7 +56,7 @@ exports.download = function(callback){
         g.next();
         function resume(value){
             if(value){
-                return;
+                return ;
             }
             g.next();
         }
