@@ -5,6 +5,11 @@ var http = require('http'),
     connect = require('connect'),
     fs = require('fs');
 
+// socket hang up error
+// from https://nqdeng.github.io/7-days-nodejs/
+// from http://stackoverflow.com/questions/16472497/nodejs-max-socket-pooling-settings
+// from https://engineering.linkedin.com/nodejs/blazing-fast-nodejs-10-performance-tips-linkedin-mobile
+http.globalAgent.maxSockets = 30;
 var config = require('./config.js');
 
 var proxy = httpProxy.createProxyServer({});
@@ -18,23 +23,26 @@ exports.transfer = function (){
     simpleselect.query = 'head';
     simpleselect.func = function (node) {
 
-        var out = '<style type="text/css"> img { ';
-        out +='-webkit-transform: rotate(-120deg); ';
-        out += '-moz-transform: rotate(-90deg); ';
-        out += 'filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);}</style>';
+        var out = '';
 
         out += `
         <script>
             // if user is running mozilla then use it's built-in WebSocket
         window.WebSocket = window.WebSocket || window.MozWebSocket;
 
-        var connection = new WebSocket('ws://127.0.0.1:1337');
+        var connection = new WebSocket('ws://127.0.0.1:13377');
 
         connection.onopen = function () {
+            console.log('ws opened')
             // connection is opened and ready to use
         };
 
         connection.onerror = function (error) {
+            console.log('ws error')
+            // an error occurred when sending/receiving data
+        };
+        connection.onclose = function (error) {
+            console.log('ws closed')
             // an error occurred when sending/receiving data
         };
 
@@ -60,12 +68,12 @@ exports.transfer = function (){
 
     selects.push(simpleselect);
 
-    var app = connect();
+
 
 
     config.servers.forEach(function(objServer){
         //var server = http.createServer(function(req, res) {
-
+        var app = connect();
             var proxy = httpProxy.createProxyServer({
                 target: objServer.url
             })

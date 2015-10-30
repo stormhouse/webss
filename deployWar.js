@@ -9,7 +9,7 @@ var path = require('path'),
 
 var exports = module.exports = {};
 
-var packageExec = path.join(config.mvnHome, '/bin/mvn package'),
+var packageExec = path.join(config.mvnHome, '/bin/mvn'),
     startTomcatExec = util.isWin ? 'startup.bat' : 'startup.sh',
     shutdownTomcatExec = util.isWin ? 'shutdown.bat' : 'shutdown.sh';
 
@@ -76,28 +76,72 @@ exports.deploy = function(callback) {
                     updateTomcatPort();
                     shutdownTomcat(function () {
                         console.log('info: mvn package ...')
-                        cp.exec(packageExec, {cwd: config.currentPath}, function (err, stdout, stderr) {
-                            if (err) {
-                                console.error('error: exec ' + packageExec + ' failed!!!')
-                                callback && callback();
-                            } else {
-                                if (stdout.indexOf('BUILD SUCCESS') > -1) {
-                                    console.log(stdout);
-                                    if(!fs.existsSync(config.sourceWar)){
-                                        console.error('error: ' + config.sourceWar + ' is not found!!!  please check "contextName && webPath" in webss.json');
-                                        return
-                                    }
-                                    cpy([config.sourceWar], path.join(config.tomcatHome, '/webapps'), function (err) {
-                                        console.log('info: deploy : \n' + config.sourceWar + ' succeed ')
-                                        console.log('    ' + path.join(config.tomcatHome, '/webapps'))
-                                        callback && callback();
-                                    });
-                                } else {
-                                    console.error('error: deploy : \n' + config.sourceWar + ' failed!!!')
-                                    callback && callback();
-                                }
-                            }
+
+                        var args = []
+
+                        if (util.isWin) {
+                            args.unshift(packageExec);
+                            args.unshift('/c'),
+                            args.unshift('/s');
+                            args.push('package');
+                            args.push('-Dmaven.test.skip=true');
+                            packageExec = process.env.COMSPEC || 'cmd.exe';
+                        }
+
+                        //console.log(config.currentPath)
+                        //console.log(packageExec)
+                        //console.log('====================')
+                        var mvnPackage    = cp.spawn(packageExec, args, { cwd:  config.currentPath });
+
+                        mvnPackage.stdout.on('data', function (data) {
+                            console.log(data.toString());
                         });
+
+                        mvnPackage.stderr.on('data', function (data) {
+                            console.log('stderr: ' + data);
+                        });
+
+                        mvnPackage.on('exit', function (code) {
+
+                                if(!fs.existsSync(config.sourceWar)){
+                                    console.error('error: ' + config.sourceWar + ' is not found!!!  please check "contextName && webPath" in webss.json');
+                                    return
+                                }
+                                cpy([config.sourceWar], path.join(config.tomcatHome, '/webapps'), function (err) {
+                                    console.log('info: deploy : \n' + config.sourceWar + ' succeed ')
+                                    console.log('    ' + path.join(config.tomcatHome, '/webapps'))
+                                    callback && callback();
+                                });
+
+                        });
+                        //cp.exec(packageExec, {cwd: config.currentPath}, function (err, stdout, stderr) {
+                        //    if (err) {
+                        //        console.error('error: exec ' + packageExec + ' failed!!!')
+                        //        callback && callback();
+                        //    } else {
+                        //        if (stdout.indexOf('BUILD SUCCESS') > -1) {
+                        //            console.log(stdout);
+                        //            if(!fs.existsSync(config.sourceWar)){
+                        //                console.error('error: ' + config.sourceWar + ' is not found!!!  please check "contextName && webPath" in webss.json');
+                        //                return
+                        //            }
+                        //            cpy([config.sourceWar], path.join(config.tomcatHome, '/webapps'), function (err) {
+                        //                console.log('info: deploy : \n' + config.sourceWar + ' succeed ')
+                        //                console.log('    ' + path.join(config.tomcatHome, '/webapps'))
+                        //                callback && callback();
+                        //            });
+                        //        } else {
+                        //            console.error('error: deploy : \n' + config.sourceWar + ' failed!!!')
+                        //            callback && callback();
+                        //        }
+                        //    }
+                        //});
+
+
+
+
+
+
                     })
                 }
             })

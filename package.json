@@ -1,7 +1,7 @@
 {
   "name": "webss",
-  "version": "0.0.6",
-  "description": "development",
+  "version": "0.0.7",
+  "description": "development javaweb project",
   "author": {
     "name": "stormhouse"
   },
@@ -16,12 +16,14 @@
   "bin": {
     "webss": "./watcher.js"
   },
+  "homepage": "https://github.com/stormhouse/webss",
   "devDependencies": {
     "chokidar": "^1.2.0",
     "cpy": "^3.4.1",
     "del": "^2.0.2",
     "q": "^2.0.2",
     "download": "^4.2.1",
+    "download-status": "^2.2.1",
     "decompress": "^3.0.0",
     "websocket": "^1.0.22",
     "connect": "^3.4.0",
@@ -34,6 +36,7 @@
     "del": "^2.0.2",
     "q": "^2.0.2",
     "download": "^4.2.1",
+    "download-status": "^2.2.1",
     "decompress": "^3.0.0",
     "websocket": "^1.0.22",
     "connect": "^3.4.0",

@@ -31,9 +31,7 @@ if (arg === 'help') {
     return ;
 }
 
-setTimeout(function(){
-    isLog = true;
-}, 20000)
+
 
 //if (!fs.existsSync('./webss.json')) {
 //    console.error('error: webss.json file not found!');
@@ -58,6 +56,9 @@ cp.exec('java -version', {cwd: config.currentPath}, function (error, stdout, std
         }else if(arg === 'server'){
             shutdownTomcat(startupTomcat);
         }else if(arg === 'run'){
+            setTimeout(function(){
+                isLog = true;
+            }, 20000)
             synchFiles();
             transfer.transfer();
             wsServerObj = new wsServer();
@@ -72,7 +73,7 @@ function wsServer(){
         // process HTTP request. Since we're writing just WebSockets server
         // we don't have to implement anything.
     });
-    this.server.listen(1337, function() { });
+    this.server.listen(13377, function() { });
 
 // create the server
     this.wsServer = new WebSocketServer({
@@ -117,8 +118,10 @@ function synchFiles(){
             });
         }else{
             cpy([path], distDictionary, function (err) {
-                isLog && console.log('info: update file -> \n' + distPath)
-                wsServerObj.sendMessage();
+                isLog && console.log('info: update file -> \n' + distPath);
+                if(isLog && config.autoReload){
+                    wsServerObj.sendMessage();
+                }
             });
         }
     });

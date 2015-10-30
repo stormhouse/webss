@@ -1,6 +1,7 @@
 var path = require('path'),
     fs = require('fs'),
     Download = require('download'),
+    downloadStatus = require('download-status'),
     Decompress = require('decompress'),
     config = require('./config.js');
 
@@ -9,15 +10,16 @@ var exports = module.exports = {};
 function downloadFile(url, destPath, fileName, callback){
 
     if(fs.existsSync(path.join(destPath, fileName))){
-        console.log('info:  ' +fileName+ ' is exits ');
+        console.log('info: ' +fileName+ ' is exits ');
         setTimeout(function(){
             callback();
         },1)
     }else{
         console.log('info: download ' +fileName+ ' ...');
-        new Download({mode: '755'})
+        new Download({mode: '755',extract: false, strip: 1})
             .get(url)
             .dest(destPath)
+            .use(downloadStatus())
             .run(function (error, files) {
                 if (error) {
                     console.error('error: download '+ fileName +' failed !!!');
@@ -66,7 +68,8 @@ exports.download = function(callback){
         yield downloadFile(config.tomcatUrl, config.homePath, config.tomcatName, resume);
         yield downloadFile(config.mvnUrl, config.homePath, config.mvnName, resume);
         yield decompressMaven(resume);
-        callback();
+
+        callback && callback();
     });
 
 
@@ -99,4 +102,8 @@ exports.download = function(callback){
     //        }
     //    });
     //}
+}
+
+if(require.main === module){
+    exports.download()
 }
