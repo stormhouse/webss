@@ -47,7 +47,7 @@ cp.exec('java -version', {cwd: config.currentPath}, function (error, stdout, std
         if(arg === 'setup'){
             downloadZip.download(function(){
                 console.log('info: webss setup succeed')
-                console.log('info: please update your webss.json file in your project dir')
+                console.log('info: please modify your webss.json file in your project dir, then exec "webss deploy"')
             });
         }else if(arg === 'deploy'){
             deployWar.deploy(function(){

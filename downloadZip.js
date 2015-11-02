@@ -1,8 +1,10 @@
 var path = require('path'),
     fs = require('fs'),
+    crypto = require('crypto'),
     Download = require('download'),
     downloadStatus = require('download-status'),
     Decompress = require('decompress'),
+
     config = require('./config.js');
 
 var exports = module.exports = {};
@@ -32,7 +34,30 @@ function downloadFile(url, destPath, fileName, callback){
     }
 
 }
+
+function checkFileHash(filePath, fileName, md5, callback){
+    var md5sum = crypto.createHash('md5');
+
+    console.log('info: checkHash of the file: ' + fileName);
+    var s = fs.ReadStream(path.join(filePath, fileName));
+    s.on('data', function(d) {
+        md5sum.update(d);
+    });
+
+    s.on('end', function() {
+        var d = md5sum.digest('hex');
+        if(md5 === d){
+            callback && callback()
+            console.log('info: '+fileName + ' is correct')
+        }else{
+            fs.unlinkSync(path.join(filePath, fileName));
+            callback && callback(new Error(fileName + ' md5 is not correct, please exec "webss setup" to download again'))
+        }
+    });
+}
+
 function decompressMaven(callback){
+
     console.log('info: decompress ' + config.mvnName + ' ...')
     new Decompress({mode: '755'})
         .src(path.join(config.homePath, config.mvnName))
@@ -58,6 +83,7 @@ exports.download = function(callback){
         g.next();
         function resume(value){
             if(value){
+                console.error(value);
                 return ;
             }
             g.next();
@@ -67,6 +93,8 @@ exports.download = function(callback){
     run(function * G(resume){
         yield downloadFile(config.tomcatUrl, config.homePath, config.tomcatName, resume);
         yield downloadFile(config.mvnUrl, config.homePath, config.mvnName, resume);
+        yield checkFileHash(config.homePath, config.tomcatName, config.tomcatMd5, resume);
+        yield checkFileHash(config.homePath, config.mvnName, config.mvnMd5, resume);
         yield decompressMaven(resume);
 
         callback && callback();
