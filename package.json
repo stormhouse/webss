@@ -1,6 +1,6 @@
 {
   "name": "webss",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "development javaweb project",
   "author": {
     "name": "stormhouse"
@@ -17,6 +17,10 @@
     "webss": "./watcher.js"
   },
   "homepage": "https://github.com/stormhouse/webss",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stormhouse/webss.git"
+  },
   "devDependencies": {
     "chokidar": "^1.2.0",
     "cpy": "^3.4.1",

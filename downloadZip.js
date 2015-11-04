@@ -51,7 +51,7 @@ function checkFileHash(filePath, fileName, md5, callback){
             console.log('info: '+fileName + ' is correct')
         }else{
             fs.unlinkSync(path.join(filePath, fileName));
-            callback && callback(new Error(fileName + ' md5 is not correct, please exec "webss setup" to download again'))
+            callback && callback(new Error(fileName + ' md5 is incorrect, please exec "webss setup" to download again'))
         }
     });
 }
