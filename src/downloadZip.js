@@ -99,37 +99,6 @@ exports.download = function(callback){
 
         callback && callback();
     });
-
-
-    //if(!fs.existsSync('./webss.json')){
-    //    console.error('error: webss.json file not found!!!')
-    //    return ;
-    //}
-    //
-    //if(fs.existsSync(path.join(config.homePath, config.tomcatName))){
-    //    console.log('info: '+ config.tomcatName + ' is exists');
-    //    if(fs.existsSync(path.join(config.homePath, config.mvnName))) {
-    //        console.log('info: '+ config.mvnName + ' is exists');
-    //    }else{
-    //        downloadFile(config.mvnUrl, config.homePath, config.mvnName, function(){
-    //            decompressMaven(function(){
-    //                callback && callback();
-    //            })
-    //        })
-    //    }
-    //}else{
-    //    downloadFile(config.tomcatUrl, config.homePath, config.tomcatName, function(){
-    //        if(fs.existsSync(path.join(config.homePath, config.mvnName))) {
-    //            console.log('info: '+ config.mvnName + ' is exists');
-    //        }else{
-    //            downloadFile(config.mvnUrl, config.homePath, config.mvnName, function(){
-    //                decompressMaven(function(){
-    //                    callback && callback();
-    //                })
-    //            })
-    //        }
-    //    });
-    //}
 }
 
 if(require.main === module){

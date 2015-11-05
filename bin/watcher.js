@@ -7,16 +7,20 @@ var fs = require('fs'),
     del = require('del'),
     cp = require('child_process'),
     WebSocketServer = require('websocket').server,
-    http = require('http');
+    http = require('http'),
+    minimatch = require("minimatch");
 
-var util = require('./util.js'),
-    config = require('./config.js'),
-    downloadZip = require('./downloadZip.js'),
-    deployWar = require('./deployWar.js'),
-    transfer = require('./transfer.js');
+var util = require('./../src/util.js'),
+    config = require('./../src/config.js'),
+    downloadZip = require('./../src/downloadZip.js'),
+    deployWar = require('./../src/deployWar.js'),
+    transfer = require('./../src/transfer.js');
+
+//var preHanders = ['./p1.js', './p2.js'];
+//var preHanders = [];//['./p1.js', './p2.js'];
 
 var arg,
-    isLog = false,
+    isLog = false, // TODO 初始不打印log
     wsServerObj,
     startTomcatExec = util.isWin ? 'startup.bat' : 'startup.sh',
     shutdownTomcatExec = util.isWin ? 'shutdown.bat' : 'shutdown.sh';
@@ -26,19 +30,10 @@ process.argv.forEach(function (val, index, array) {
         arg = val;
     }
 });
-if (arg === 'help') {
+if (arg === 'help' || arg === '') {
     util.showHelp();
     return ;
 }
-
-
-
-//if (!fs.existsSync('./webss.json')) {
-//    console.error('error: webss.json file not found!');
-//    return
-//}
-
-
 
 cp.exec('java -version', {cwd: config.currentPath}, function (error, stdout, stderr) {
     if(error || process.env['JAVA_HOME'] === undefined ){
@@ -112,18 +107,47 @@ function synchFiles(){
             fileName = filePathArray[filePathArray.length-1],
             distPath = path.replace(config.sourceDir, config.targetDir),
             distDictionary = path.replace(config.sourceDir, config.targetDir).replace(fileName, '');
-        if(event === 'unlink'){
-            del([distPath]).then(function (paths) {
-                isLog && console.log('info: delete file -> :\n', distPath);
-            });
-        }else{
-            cpy([path], distDictionary, function (err) {
-                isLog && console.log('info: update file -> \n' + distPath);
-                if(isLog && config.autoReload){
-                    wsServerObj.sendMessage();
+
+        // ----------------------------
+        if(isLog && config.preHanders && config.preHanders.length>0  && !minimatch(path, config.preExclude)){
+            var funs = [];
+
+            config.preHanders.map(function(file){
+                funs.push(function (resume){
+                    console.log(file)
+                    var n = cp.fork(file)
+                    var msg = []
+                    n.on('message', function(m) {
+                        msg.push(m)
+                    })
+                    n.on('exit', function(){
+                        console.log(file+'-done')
+                        resume()
+                    })
+                })
+            })
+
+            util.run(function * G(resume){
+                for(var i= 0,len=funs.length; i<len; i++){
+                    yield funs[i](resume)
                 }
-            });
+            })
+        }else{
+            if(event === 'unlink'){
+                del([distPath]).then(function (paths) {
+                    isLog && console.log('info: delete file -> :\n', distPath);
+                });
+            }else{
+                cpy([path], distDictionary, function (err) {
+                    isLog && console.log('info: update file -> \n' + distPath);
+                    if(isLog && config.autoReload){
+                        wsServerObj.sendMessage();
+                    }
+                });
+            }
         }
+
+
     });
 }
 

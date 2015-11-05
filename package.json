@@ -1,6 +1,6 @@
 {
   "name": "webss",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "development javaweb project",
   "author": {
     "name": "stormhouse"
@@ -14,7 +14,7 @@
     "node": ">=4.2.0"
   },
   "bin": {
-    "webss": "./watcher.js"
+    "webss": "./bin/watcher.js"
   },
   "homepage": "https://github.com/stormhouse/webss",
   "repository": {
@@ -45,7 +45,8 @@
     "websocket": "^1.0.22",
     "connect": "^3.4.0",
     "http-proxy": "^1.11.1",
-    "harmon": "^1.1.3"
+    "harmon": "^1.1.3",
+    "minimatch": "^3.0.0"
   }
 
 }

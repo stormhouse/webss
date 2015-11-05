@@ -88,9 +88,6 @@ exports.deploy = function(callback) {
                             packageExec = process.env.COMSPEC || 'cmd.exe';
                         }
 
-                        //console.log(config.currentPath)
-                        //console.log(packageExec)
-                        //console.log('====================')
                         var mvnPackage    = cp.spawn(packageExec, args, { cwd:  config.currentPath });
 
                         mvnPackage.stdout.on('data', function (data) {
@@ -114,34 +111,6 @@ exports.deploy = function(callback) {
                                 });
 
                         });
-                        //cp.exec(packageExec, {cwd: config.currentPath}, function (err, stdout, stderr) {
-                        //    if (err) {
-                        //        console.error('error: exec ' + packageExec + ' failed!!!')
-                        //        callback && callback();
-                        //    } else {
-                        //        if (stdout.indexOf('BUILD SUCCESS') > -1) {
-                        //            console.log(stdout);
-                        //            if(!fs.existsSync(config.sourceWar)){
-                        //                console.error('error: ' + config.sourceWar + ' is not found!!!  please check "contextName && webPath" in webss.json');
-                        //                return
-                        //            }
-                        //            cpy([config.sourceWar], path.join(config.tomcatHome, '/webapps'), function (err) {
-                        //                console.log('info: deploy : \n' + config.sourceWar + ' succeed ')
-                        //                console.log('    ' + path.join(config.tomcatHome, '/webapps'))
-                        //                callback && callback();
-                        //            });
-                        //        } else {
-                        //            console.error('error: deploy : \n' + config.sourceWar + ' failed!!!')
-                        //            callback && callback();
-                        //        }
-                        //    }
-                        //});
-
-
-
-
-
-
                     })
                 }
             })

@@ -36,7 +36,6 @@ var mvnSource = {
         md5: '6e5da03a3324f616493a0fd09d6383fc'
     }
 }
-
 exports.port = config.port;
 exports.autoReload = config.autoReload === false ? false : true;
 
@@ -58,4 +57,6 @@ exports.mvnHome = path.join(exports.homePath, '/maven');
 exports.servers = config.servers;
 exports.webPath = config.webPath;
 exports.currentPath = path.resolve('./');
+exports.preHanders = config.preHanders || [];
+exports.preExclude = config.preExclude || '';
 //exports.currentPath = path.resolve('./');

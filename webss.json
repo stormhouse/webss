@@ -6,5 +6,7 @@
         "url": "http://127.0.0.1:8888",
         "localPort": "5050",
         "desc": "local server"
-    }]
+    }],
+    "preHanders": ["./p1.js", "./p2.js"],
+    "preExclude": "**/dist/**"
 }

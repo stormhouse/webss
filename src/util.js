@@ -15,3 +15,15 @@ exports.showHelp = function(){
     log('  run        synch files of webproject to tomcat webapps dir, and start proxy')
     log('\n\n\n')
 };
+
+exports.run = function(generateFun){
+    var g = generateFun(resume);
+    g.next();
+    function resume(value){
+        if(value){
+            console.error(value);
+            return ;
+        }
+        g.next();
+    }
+}
