@@ -7,6 +7,8 @@ var path = require('path'),
 
     config = require('./config.js');
 
+if(config.contextName == undefined) return ;
+
 var exports = module.exports = {};
 
 var packageExec = path.join(config.mvnHome, '/bin/mvn'),
@@ -51,15 +53,15 @@ exports.deploy = function(callback) {
         callback && callback('error');
         return ;
     }
+
     cp.exec('svn update', {cwd: config.currentPath}, function (err, stdout, stderr) {
 
         console.log(stdout);
         //log('deploy ' + config.contextName + '.war to ' + 'server/ '+port);
-        var removeContextPath = path.join(config.tomcatHome, '/webapps/' + config.contextName);
-        deleteFolderRecursive(removeContextPath);
-        if (fs.existsSync(removeContextPath + '.war')) {
-            fs.unlinkSync(removeContextPath + '.war');
-        }
+
+        //if (fs.existsSync(removeContextPath + '.war')) {
+        //    fs.unlinkSync(removeContextPath + '.war');
+        //}
         // TODO
         console.log('info: decompress ' + config.tomcatName + ' ...');
         console.log(path.join(config.homePath, config.tomcatName))
@@ -68,8 +70,10 @@ exports.deploy = function(callback) {
             .dest(config.tomcatHome)
             .use(Decompress.zip({strip: 1}))
             .run(function (error) {
+                var removeContextPath = path.join(config.tomcatHome, '/webapps/');
+                deleteFolderRecursive(removeContextPath);
                 if (error) {
-                    //console.error('error: decompress ' + config.tomcatName + ' failed !!!')
+                    console.error('error: decompress ' + config.tomcatName + ' failed !!!')
                 } else {
                     console.log('info: decompress ' + config.tomcatName + ' succeed')
 
@@ -107,6 +111,7 @@ exports.deploy = function(callback) {
                                 cpy([config.sourceWar], path.join(config.tomcatHome, '/webapps'), function (err) {
                                     console.log('info: deploy : \n' + config.sourceWar + ' succeed ')
                                     console.log('    ' + path.join(config.tomcatHome, '/webapps'))
+                                    fs.renameSync(path.join(config.tomcatHome, '/webapps/', config.contextName+'.war') , path.join(config.tomcatHome, '/webapps/', 'ROOT.war') )
                                     callback && callback();
                                 });
 
@@ -116,4 +121,9 @@ exports.deploy = function(callback) {
             })
     });
 
+}
+
+if(require.main === module){
+    console.log(11)
+    exports.deploy()
 }

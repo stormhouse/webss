@@ -1,4 +1,6 @@
 var http = require('http')
+var minimatch = require('minimatch')
+var path = require('path')
 
 http.globalAgent.maxSockets = 5
 
@@ -9,3 +11,9 @@ for(var i= 0,len=100; i<len; i++) {
         console.log(new Date().getTime() + "-------Got error: " + e.message);
     });
 }
+
+
+console.log(minimatch('d:/98/sdf/sdf/dist/sdfjksdfj/j.txt', '**/dist/**'))
+
+console.log(path.resolve("./src/main/webapp/viewport/build/main.js" ))
+console.log(path.normalize("./src/main/webapp/viewport/build/main.js" ))

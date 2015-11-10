@@ -1,12 +1,13 @@
 {
-    "contextName": "weixin",
     "webPath": "/",
     "port": "8888",
-    "servers": [{
-        "url": "http://127.0.0.1:8888",
+    "proxies": [{
+        "remoteUrl": "http://127.0.0.1:8888",
         "localPort": "5050",
         "desc": "local server"
     }],
-    "preHanders": ["./p1.js", "./p2.js"],
-    "preExclude": "**/dist/**"
+    "middleware": [{
+        "scope": "**/portal/**", //[]
+        "bin": "./src/main/webapp/viewport/build/main.js" //执行脚本
+    }]
 }

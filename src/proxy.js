@@ -5,14 +5,14 @@ var http = require('http'),
     connect = require('connect'),
     fs = require('fs');
 
-// socket hang up error
+// TODO socket hang up error
 // from https://nqdeng.github.io/7-days-nodejs/
 // from http://stackoverflow.com/questions/16472497/nodejs-max-socket-pooling-settings
 // from https://engineering.linkedin.com/nodejs/blazing-fast-nodejs-10-performance-tips-linkedin-mobile
 http.globalAgent.maxSockets = 30;
 var config = require('./config.js');
 
-var proxy = httpProxy.createProxyServer({});
+//var proxy = httpProxy.createProxyServer({});
 
 var exports = module.exports = {};
 exports.transfer = function (){
@@ -68,21 +68,17 @@ exports.transfer = function (){
 
     selects.push(simpleselect);
 
-
-
-
-    config.servers.forEach(function(objServer){
-        //var server = http.createServer(function(req, res) {
+    config.proxies.forEach(function(objServer){
         var app = connect();
             var proxy = httpProxy.createProxyServer({
-                target: objServer.url
+                target: objServer.remoteUrl
             })
 
             app.use(harmon([], selects, true));
             app.use(function (req, res) {
                 var startIndex = req.url.indexOf('portal/');
                 if( startIndex > -1){
-                    var p = path.join(path.resolve('./') , config.webPath,  '/src/main/webapp/', req.url.substring(startIndex, req.url.length))
+                    var p = path.join(config.webPath,  '/src/main/webapp/', req.url.substring(startIndex, req.url.length))
                     p = p.replace(/\?v=[\d|\.|\w|&|=|-]*/, ''); // 去掉后面的参数 manage.js?v=1.2-6&_=123
                     fs.readFile(p, function(error, data){
 
@@ -105,7 +101,7 @@ exports.transfer = function (){
             })
 
 
-        console.log("listening on port "+ objServer.localPort + ' of ', objServer.desc + ' --> '+objServer.url);
+        console.log("listening on port "+ objServer.localPort + ' of ', objServer.desc + ' --> '+objServer.remoteUrl);
         http.createServer(app).listen(objServer.localPort);
     })
 }

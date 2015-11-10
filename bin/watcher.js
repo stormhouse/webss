@@ -10,17 +10,15 @@ var fs = require('fs'),
     http = require('http'),
     minimatch = require("minimatch");
 
+
 var util = require('./../src/util.js'),
     config = require('./../src/config.js'),
     downloadZip = require('./../src/downloadZip.js'),
     deployWar = require('./../src/deployWar.js'),
-    transfer = require('./../src/transfer.js');
+    transfer = require('./../src/proxy.js');
 
-//var preHanders = ['./p1.js', './p2.js'];
-//var preHanders = [];//['./p1.js', './p2.js'];
 
 var arg,
-    isLog = false, // TODO 初始不打印log
     wsServerObj,
     startTomcatExec = util.isWin ? 'startup.bat' : 'startup.sh',
     shutdownTomcatExec = util.isWin ? 'shutdown.bat' : 'shutdown.sh';
@@ -34,6 +32,7 @@ if (arg === 'help' || arg === '') {
     util.showHelp();
     return ;
 }
+if(!config.contextName) return ;
 
 cp.exec('java -version', {cwd: config.currentPath}, function (error, stdout, stderr) {
     if(error || process.env['JAVA_HOME'] === undefined ){
@@ -51,12 +50,13 @@ cp.exec('java -version', {cwd: config.currentPath}, function (error, stdout, std
         }else if(arg === 'server'){
             shutdownTomcat(startupTomcat);
         }else if(arg === 'run'){
-            setTimeout(function(){
-                isLog = true;
-            }, 20000)
-            synchFiles();
-            transfer.transfer();
-            wsServerObj = new wsServer();
+
+            middlewareHandle(function(){
+                synchFiles();
+                transfer.transfer();
+                wsServerObj = new wsServer();
+            })
+
         }else{
             util.showHelp();
         }
@@ -101,53 +101,83 @@ function wsServer(){
     }
 }
 
-function synchFiles(){
-    chokidar.watch(config.sourceDir, {ignored:  /node_modules\\|\.idea|\.plugins|\.git|\.jar|\.xml|\.class/}).on('all', function(event, path) {
-        var filePathArray = path.split('\\'),
-            fileName = filePathArray[filePathArray.length-1],
-            distPath = path.replace(config.sourceDir, config.targetDir),
-            distDictionary = path.replace(config.sourceDir, config.targetDir).replace(fileName, '');
+function middlewareHandle(callback, filePath){
+    // 中间件
+    if(config.middleware && config.middleware.length>0){
+        var funs = [];
 
-        // ----------------------------
-        if(isLog && config.preHanders && config.preHanders.length>0  && !minimatch(path, config.preExclude)){
-            var funs = [];
+        config.middleware.map(function(obj){
+            var isCallms = false;
+            obj.scope = [].concat(obj.scope);
+            isCallms = obj.scope.some(function(s){
+                if(filePath === undefined) return true; // 程序启动时，首次执行
+                return minimatch(filePath,  s);
+            })
 
-            config.preHanders.map(function(file){
-                funs.push(function (resume){
-                    console.log(file)
-                    var n = cp.fork(file)
-                    var msg = []
-                    n.on('message', function(m) {
-                        msg.push(m)
+            if(isCallms) {
+
+                funs.push(function (resume) {
+                    console.log(path.resolve(obj.bin))
+                    var n = cp.fork(path.resolve(obj.bin), filePath === undefined ? [] : ["-f", filePath], {
+                        "cwd": path.dirname(path.resolve(obj.bin))
                     })
-                    n.on('exit', function(){
-                        console.log(file+'-done')
-                        resume()
+
+                    var isError = false
+                    var msg = []
+                    n.on('message', function (m) {
+                        isError = m.type === 'error'
+                    })
+                    n.on('exit', function () {
+                        if(isError){
+                            resume(new Error(msg.join('')))
+                        }else{
+                            resume()
+                        }
+
                     })
                 })
-            })
+            }
+        })
 
-            util.run(function * G(resume){
-                for(var i= 0,len=funs.length; i<len; i++){
-                    yield funs[i](resume)
-                }
-            })
+        util.run(function * G(resume){
+            for(var i= 0,len=funs.length; i<len; i++){
+                yield funs[i](resume)
+            }
+            callback && callback()
+        })
+    }else{
+        callback && callback()
+    }
+}
+
+function synchFiles(){
+    chokidar.watch(config.sourceDir, {
+        ignored:  /node_modules\\|\.idea|\.plugins|\.git|\.jar|\.xml|\.class/,
+        ignoreInitial: true,
+        alwaysStat: true
+    }).on('all', function(event, filePath) {
+        var filePathArray = filePath.split('\\'),
+            fileName = filePathArray[filePathArray.length-1],
+            distPath = filePath.replace(config.sourceDir, config.targetDir),
+            distDictionary = filePath.replace(config.sourceDir, config.targetDir).replace(fileName, '');
+
+        middlewareHandle(function(){}, filePath)
+
+        if(event === 'unlink'){
+            del([distPath]).then(function (paths) {
+                console.log('info: delete file -> :\n', distPath);
+            });
         }else{
-            if(event === 'unlink'){
-                del([distPath]).then(function (paths) {
-                    isLog && console.log('info: delete file -> :\n', distPath);
-                });
-            }else{
-                cpy([path], distDictionary, function (err) {
-                    isLog && console.log('info: update file -> \n' + distPath);
-                    if(isLog && config.autoReload){
+            fs.unlink(distPath, function(){
+                cpy([filePath], distDictionary, function (err) {
+                    console.log(222)
+                    console.log('info: update file -> \n' + distPath);
+                    if(config.pageAutoReload){
                         wsServerObj.sendMessage();
                     }
                 });
-            }
+            });
         }
-
-
     });
 }
 
