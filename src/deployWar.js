@@ -77,17 +77,32 @@ function execMaven(mvnExec, arg, callback){
             callback && callback()
             return
         }
+        var  sourceWar ;
+        fs.readdir(config.sourceWarDir, function(err, files){
+            if(err){
+                console.error('error: .war is not found!!!');
+            }else{
+                var warFile = files.filter(function(name){
+                    return name.match(/.*\.war$/)
+                })
+                if(warFile.length === 1){
+                    sourceWar = warFile[0];
+                    cpy([path.join(config.sourceWarDir, sourceWar)], path.join(config.tomcatHome, '/webapps'), function (err) {
+                        console.log('info: deploy : \n' + sourceWar + ' succeed ')
+                        console.log('    ' + path.join(config.tomcatHome, '/webapps'))
+                        // 去掉url上的contextName http://stackoverflow.com/questions/715506/tomcat-6-how-to-change-the-root-application
+                        fs.renameSync(path.join(config.tomcatHome, '/webapps/', sourceWar) , path.join(config.tomcatHome, '/webapps/', 'ROOT.war') )
+                        callback && callback();
+                    });
+                }else{
+                    console.error('error: .war is not found!!!');
+                }
+            }
+        })
 
-        if(!fs.existsSync(config.sourceWar)){
-            console.error('error: ' + config.sourceWar + ' is not found!!!  please check "contextName && webPath" in webss.json');
-            return
-        }
-        cpy([config.sourceWar], path.join(config.tomcatHome, '/webapps'), function (err) {
-            console.log('info: deploy : \n' + config.sourceWar + ' succeed ')
-            console.log('    ' + path.join(config.tomcatHome, '/webapps'))
-            fs.renameSync(path.join(config.tomcatHome, '/webapps/', config.contextName+'.war') , path.join(config.tomcatHome, '/webapps/', 'ROOT.war') )
-            callback && callback();
-        });
+
+
+
 
     });
 }
@@ -108,31 +123,34 @@ exports.deploy = function(callback) {
         //    fs.unlinkSync(removeContextPath + '.war');
         //}
         // TODO
-        console.log('info: decompress ' + config.tomcatName + ' ...');
-        console.log(path.join(config.homePath, config.tomcatName))
-        new Decompress({mode: '755'})
-            .src(path.join(config.homePath, config.tomcatName))
-            .dest(config.tomcatHome)
-            .use(Decompress.zip({strip: 1}))
-            .run(function (error) {
-                var removeContextPath = path.join(config.tomcatHome, '/webapps/');
-                deleteFolderRecursive(removeContextPath);
-                if (error) {
-                    console.error('error: decompress ' + config.tomcatName + ' failed !!!')
-                } else {
-                    console.log('info: decompress ' + config.tomcatName + ' succeed')
+        shutdownTomcat(function () {
 
-                    updateTomcatPort();
-                    shutdownTomcat(function () {
-                        console.log(1)
-                        execMaven(packageExec, 'clean', function(){
-                            execMaven(packageExec, 'package', function(){
+            //删除tomcat解压目录
+            deleteFolderRecursive(config.tomcatHome)
+            console.log('info: decompress ' + config.tomcatName + ' ...');
+            new Decompress({mode: '755'})
+                .src(path.join(config.homePath, config.tomcatName))
+                .dest(config.tomcatHome)
+                .use(Decompress.zip({strip: 1}))
+                .run(function (error) {
+                    var removeContextPath = path.join(config.tomcatHome, '/webapps/');
+                    deleteFolderRecursive(removeContextPath);
+                    if (error) {
+                        console.error('error: decompress ' + config.tomcatName + ' failed !!!')
+                    } else {
+                        console.log('info: decompress ' + config.tomcatName + ' succeed')
+
+                        updateTomcatPort();
+
+                        execMaven(packageExec, 'clean', function () {
+                            execMaven(packageExec, 'package', function () {
                                 callback && callback()
                             })
                         })
-                    })
-                }
-            })
+
+                    }
+                })
+        })
     });
 
 }

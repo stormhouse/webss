@@ -170,7 +170,6 @@ function synchFiles(){
         }else{
             fs.unlink(distPath, function(){
                 cpy([filePath], distDictionary, function (err) {
-                    console.log(222)
                     console.log('info: update file -> \n' + distPath);
                     if(config.pageAutoReload){
                         wsServerObj.sendMessage();

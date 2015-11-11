@@ -1,7 +1,6 @@
 var fs = require('fs'),
     path = require('path'),
-    util = require('./util.js'),
-    xml2js = require('xml2js');
+    util = require('./util.js');
 
 var exports = module.exports = {};
 
@@ -25,34 +24,6 @@ if(!fs.existsSync('./webss.json'))
 
 var config = JSON.parse(fs.readFileSync('./webss.json'));
 var currentPath = path.resolve('./');
-
-
-//查找pom.xml finalName属性
-var pomFile = path.join(currentPath, config.webPath, '/pom.xml');
-if(fs.existsSync(pomFile)){
-    var pomContent = fs.readFileSync(pomFile);
-    xml2js.parseString(pomContent, function (err, result) {
-        if(err){
-            console.log('error: ' + pomFile + ' is incorrect!!!')
-        }else{
-            if(result.project && result.project.build && result.project.build.length>0){
-                if(result.project.build[0].finalName){
-                    config.contextName = result.project.build[0].finalName[0]
-                }else{
-                    console.log('error: please set finalName node in ' + pomFile + '!!!')
-                    return
-                }
-            }else{
-                console.log('error: please set finalName node in ' + pomFile + '!!!')
-                return
-            }
-        }
-    });
-
-}else{
-    console.error('error: not found pom.xml file in webPath');
-    return ;
-}
 
 var tomcatSource = {
     '6': {
@@ -79,15 +50,14 @@ exports.mvnUrl = config.mvnUrl || mvnSource[3].url;
 exports.mvnName = config.mvnName || mvnSource[3].name;
 exports.mvnMd5 = config.mvnMd5 || mvnSource[3].md5;
 
-exports.contextName = config.contextName;
+exports.contextName = 'ROOT';// 不依赖pom.xml 中的finalName了
 exports.homePath = path.join(util.osHomePath, '/.node_mvn_javaweb/');
 exports.sourceDir = path.join(currentPath, config.webPath, '/src/main/webapp');
 exports.tomcatHome = path.join(exports.homePath, '/server/'+ exports.port);
 exports.targetDir = path.join(exports.tomcatHome, '/webapps/' + exports.contextName);
-exports.sourceWar = path.join(currentPath+config.webPath, '/target/' + exports.contextName + '.war');
+exports.sourceWarDir = path.join(currentPath+config.webPath, '/target/');
 exports.mvnHome = path.join(exports.homePath, '/maven');
 exports.proxies = config.proxies;
 exports.webPath = path.join(currentPath, config.webPath)
 exports.currentPath = path.resolve('./');
 exports.middleware = config.middleware || [];
-//exports.currentPath = path.resolve('./');
