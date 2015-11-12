@@ -61,3 +61,4 @@ exports.proxies = config.proxies;
 exports.webPath = path.join(currentPath, config.webPath)
 exports.currentPath = path.resolve('./');
 exports.middleware = config.middleware || [];
+exports.wsServerPort = Math.floor(Math.random()*40000) + 10000;// websocket服务器地址，随机生成小于65535（TCP/IP协议规则）

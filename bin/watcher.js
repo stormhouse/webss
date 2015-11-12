@@ -68,7 +68,7 @@ function wsServer(){
         // process HTTP request. Since we're writing just WebSockets server
         // we don't have to implement anything.
     });
-    this.server.listen(13377, function() { });
+    this.server.listen(config.wsServerPort, function() { });
 
 // create the server
     this.wsServer = new WebSocketServer({

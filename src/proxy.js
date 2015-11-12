@@ -30,7 +30,7 @@ exports.transfer = function (){
             // if user is running mozilla then use it's built-in WebSocket
         window.WebSocket = window.WebSocket || window.MozWebSocket;
 
-        var connection = new WebSocket('ws://127.0.0.1:13377');
+        var connection = new WebSocket('ws://127.0.0.1:${config.wsServerPort}');
 
         connection.onopen = function () {
             console.log('ws opened')
