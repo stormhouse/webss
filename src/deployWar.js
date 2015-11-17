@@ -4,6 +4,7 @@ var path = require('path'),
     util = require('./util.js'),
     cp = require('child_process'),
     cpy = require('cpy'),
+    del = require('del'),
 
     config = require('./config.js');
 
@@ -16,19 +17,8 @@ var packageExec = path.join(config.mvnHome, '/bin/mvn'),
     shutdownTomcatExec = util.isWin ? 'shutdown.bat' : 'shutdown.sh';
 
 function deleteFolderRecursive(path) {
-    var files = [];
-    if( fs.existsSync(path) ) {
-        files = fs.readdirSync(path);
-        files.forEach(function(file,index){
-            var curPath = path + "/" + file;
-            if(fs.statSync(curPath).isDirectory()) { // recurse
-                deleteFolderRecursive(curPath);
-            } else { // delete file
-                fs.unlinkSync(curPath);
-            }
-        });
-        fs.rmdirSync(path);
-    }
+    console.log(path.replace(/\\/g, '/')+'/**')
+    del.sync([path.replace(/\\/g, '/')+'/**'], { force: true })
 }
 
 function updateTomcatPort(){
@@ -73,7 +63,7 @@ function execMaven(mvnExec, arg, callback){
     });
 
     mvnPackage.on('exit', function (code) {
-        if(arg === 'clean'){
+        if(arg[0] === 'clean'){
             callback && callback()
             return
         }
@@ -142,8 +132,8 @@ exports.deploy = function(callback) {
 
                         updateTomcatPort();
 
-                        execMaven(packageExec, 'clean', function () {
-                            execMaven(packageExec, 'package', function () {
+                        execMaven(packageExec, ['clean'], function () {
+                            execMaven(packageExec, ['package'], function () {
                                 callback && callback()
                             })
                         })

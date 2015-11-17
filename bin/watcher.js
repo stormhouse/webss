@@ -188,8 +188,15 @@ function shutdownTomcat(callback){
 }
 function startupTomcat(callback){
     console.log('start tomcat ...');
-    cp.exec(startTomcatExec, {cwd: path.join(config.tomcatHome, '/bin')}, function (err, stdout, stderr) {
-        callback && callback();
-    });
+    fs.stat(path.join(config.tomcatHome, '/bin', startTomcatExec), function(err){
+        if(err){
+            console.error('error: please re-exec "webss deploy"  !!!')
+        }else{
+            cp.exec(startTomcatExec, {cwd: path.join(config.tomcatHome, '/bin')}, function (err, stdout, stderr) {
+                callback && callback();
+            });
+        }
+    })
+
 }
 
