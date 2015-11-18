@@ -25,9 +25,11 @@ function updateTomcatPort(){
     var serverConfig = fs.readFileSync(path.join(config.tomcatHome, '/conf/server.xml')).toString();
     var httpPort = config.port;
     var ajpPort = 8009 + (parseInt(config.port)-8080);
+    var shutdownPort = 8005 + (parseInt(config.port)-8080);
 
     serverConfig = serverConfig.replace('port="8080"', 'port="'+httpPort+'"' );
     serverConfig = serverConfig.replace('port="8009"', 'port="'+ajpPort+'"' );
+    serverConfig = serverConfig.replace('port="8005"', 'port="'+shutdownPort+'"' );
     fs.writeFileSync(path.join(config.tomcatHome, '/conf/server.xml'), serverConfig);
 }
 
