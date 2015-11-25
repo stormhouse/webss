@@ -40,12 +40,12 @@ cp.exec('java -version', {cwd: config.currentPath}, function (error, stdout, std
     }else{
         if(arg === 'setup'){
             downloadZip.download(function(){
-                console.log('info: webss setup succeed')
-                console.log('info: please modify your webss.json file in your project dir, then exec "webss deploy"')
+                console.log('Info: webss setup succeed')
+                console.log('Info: please modify your webss.json file in your project dir, then exec "webss deploy"')
             });
         }else if(arg === 'deploy'){
             deployWar.deploy(function(){
-                console.log('info: webss deploy succeed')
+                console.log('Info: webss deploy succeed')
             })
         }else if(arg === 'server'){
             shutdownTomcat(startupTomcat);
@@ -53,6 +53,7 @@ cp.exec('java -version', {cwd: config.currentPath}, function (error, stdout, std
 
             middlewareHandle(function(){
                 synchFiles();
+                console.log(1)
                 transfer.transfer();
                 wsServerObj = new wsServer();
             })
@@ -100,12 +101,12 @@ function wsServer(){
         }
     }
 }
-
+var storeData = {};// 子进程之间共享数据
 function middlewareHandle(callback, filePath){
+
     // 中间件
     if(config.middleware && config.middleware.length>0){
         var funs = [];
-
         config.middleware.map(function(obj){
             var isCallms = false;
             obj.scope = [].concat(obj.scope);
@@ -126,6 +127,9 @@ function middlewareHandle(callback, filePath){
                     var msg = []
                     n.on('message', function (m) {
                         isError = m.type === 'error'
+                        if(m.type === 'share'){
+                            storeData = m.data
+                        }
                     })
                     n.on('exit', function () {
                         if(isError){
@@ -134,6 +138,10 @@ function middlewareHandle(callback, filePath){
                             resume()
                         }
 
+                    })
+                    n.send({
+                        type: "start",
+                        data: storeData
                     })
                 })
             }
@@ -154,7 +162,15 @@ function synchFiles(){
     chokidar.watch(config.sourceDir, {
         ignored:  /node_modules\\|\.idea|\.plugins|\.git|\.jar|\.xml|\.class/,
         ignoreInitial: true,
-        alwaysStat: true
+        alwaysStat: true,
+
+        usePolling: true,
+        interval: 2000,
+        //binaryInterval: 5000,
+        //awaitWriteFinish: {
+        //    stabilityThreshold: 5000,
+        //    pollInterval: 5000
+        //}
     }).on('all', function(event, filePath) {
         var filePathArray = filePath.split('\\'),
             fileName = filePathArray[filePathArray.length-1],
@@ -165,12 +181,12 @@ function synchFiles(){
 
         if(event === 'unlink'){
             del([distPath]).then(function (paths) {
-                console.log('info: delete file -> :\n', distPath);
+                console.log('Info: delete file -> :\n', distPath);
             });
         }else{
             fs.unlink(distPath, function(){
                 cpy([filePath], distDictionary, function (err) {
-                    console.log('info: update file -> \n' + distPath);
+                    console.log('Info: update file -> \n' + distPath);
                     if(config.pageAutoReload){
                         wsServerObj.sendMessage();
                     }

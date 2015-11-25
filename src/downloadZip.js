@@ -12,12 +12,12 @@ var exports = module.exports = {};
 function downloadFile(url, destPath, fileName, callback){
 
     if(fs.existsSync(path.join(destPath, fileName))){
-        console.log('info: ' +fileName+ ' is exits ');
+        console.log('Info: ' +fileName+ ' is exits ');
         setTimeout(function(){
             callback();
         },1)
     }else{
-        console.log('info: download ' +fileName+ ' ...');
+        console.log('Info: download ' +fileName+ ' ...');
         new Download({mode: '755',extract: false, strip: 1})
             .get(url)
             .dest(destPath)
@@ -27,7 +27,7 @@ function downloadFile(url, destPath, fileName, callback){
                     console.error('error: download '+ fileName +' failed !!!');
                     callback && callback(new Error('error: download '+ fileName + ' failed!!!'));
                 } else {
-                    console.log('info: download ' +fileName+ ' succeed');
+                    console.log('Info: download ' +fileName+ ' succeed');
                     callback && callback();
                 }
             });
@@ -38,7 +38,7 @@ function downloadFile(url, destPath, fileName, callback){
 function checkFileHash(filePath, fileName, md5, callback){
     var md5sum = crypto.createHash('md5');
 
-    console.log('info: checkHash of the file: ' + fileName);
+    console.log('Info: checkHash of the file: ' + fileName);
     var s = fs.ReadStream(path.join(filePath, fileName));
     s.on('data', function(d) {
         md5sum.update(d);
@@ -48,7 +48,7 @@ function checkFileHash(filePath, fileName, md5, callback){
         var d = md5sum.digest('hex');
         if(md5 === d){
             callback && callback()
-            console.log('info: '+fileName + ' is correct')
+            console.log('Info: '+fileName + ' is correct')
         }else{
             fs.unlinkSync(path.join(filePath, fileName));
             callback && callback(new Error(fileName + ' md5 is incorrect, please exec "webss setup" to download again'))
@@ -58,7 +58,7 @@ function checkFileHash(filePath, fileName, md5, callback){
 
 function decompressMaven(callback){
 
-    console.log('info: decompress ' + config.mvnName + ' ...')
+    console.log('Info: decompress ' + config.mvnName + ' ...')
     new Decompress({mode: '755'})
         .src(path.join(config.homePath, config.mvnName))
         .dest(config.mvnHome)
@@ -69,7 +69,7 @@ function decompressMaven(callback){
                 console.error('error: decompress ' + config.mvnName + ' failed!!!')
                 callback && callback(new Error('error: decompress ' + config.mvnName + ' failed!!!'));
             } else {
-                console.log('info: decompress ' + config.mvnName + ' succeed')
+                console.log('Info: decompress ' + config.mvnName + ' succeed')
                 callback && callback();
             }
         });

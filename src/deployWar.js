@@ -34,14 +34,14 @@ function updateTomcatPort(){
 }
 
 function shutdownTomcat(callback){
-    console.log('info: shutdown tomcat ...');
+    console.log('Info: shutdown tomcat ...');
     cp.exec(shutdownTomcatExec, {cwd: path.join(config.tomcatHome, '/bin')}, function (err, stdout, stderr) {
         callback && callback();
     });
 }
 
 function execMaven(mvnExec, arg, callback){
-    console.log('info: mvn '+ arg +' ...')
+    console.log('Info: mvn '+ arg +' ...')
 
     var args = []
 
@@ -80,7 +80,7 @@ function execMaven(mvnExec, arg, callback){
                 if(warFile.length === 1){
                     sourceWar = warFile[0];
                     cpy([path.join(config.sourceWarDir, sourceWar)], path.join(config.tomcatHome, '/webapps'), function (err) {
-                        console.log('info: deploy : \n' + sourceWar + ' succeed ')
+                        console.log('Info: deploy : \n' + sourceWar + ' succeed ')
                         console.log('    ' + path.join(config.tomcatHome, '/webapps'))
                         // 去掉url上的contextName http://stackoverflow.com/questions/715506/tomcat-6-how-to-change-the-root-application
                         fs.renameSync(path.join(config.tomcatHome, '/webapps/', sourceWar) , path.join(config.tomcatHome, '/webapps/', 'ROOT.war') )
@@ -101,10 +101,11 @@ function execMaven(mvnExec, arg, callback){
 
 exports.deploy = function(callback) {
     if (!fs.existsSync(config.homePath + '/' + config.tomcatName) || !fs.existsSync(config.homePath + '/' + config.mvnName)) {
-        console.log('error: please exec webss setup first !!!');
+        console.log('Error: please exec webss setup first !!!');
         callback && callback('error');
         return ;
     }
+    console.log('Info: svn update ...');
 
     cp.exec('svn update', {cwd: config.currentPath}, function (err, stdout, stderr) {
 
@@ -119,7 +120,7 @@ exports.deploy = function(callback) {
 
             //删除tomcat解压目录
             deleteFolderRecursive(config.tomcatHome)
-            console.log('info: decompress ' + config.tomcatName + ' ...');
+            console.log('Info: decompress ' + config.tomcatName + ' ...');
             new Decompress({mode: '755'})
                 .src(path.join(config.homePath, config.tomcatName))
                 .dest(config.tomcatHome)
@@ -130,7 +131,7 @@ exports.deploy = function(callback) {
                     if (error) {
                         console.error('error: decompress ' + config.tomcatName + ' failed !!!')
                     } else {
-                        console.log('info: decompress ' + config.tomcatName + ' succeed')
+                        console.log('Info: decompress ' + config.tomcatName + ' succeed')
 
                         updateTomcatPort();
 

@@ -1,5 +1,10 @@
 ## webss
-tools for Front-End Developer to develop JavaWeb Project(base on maven)
+tools for Front-End Developer to develop JavaWeb Project(Maven based)
+
+## install
+```
+npm install -g webss
+```
 
 ## webss.json
 ```
