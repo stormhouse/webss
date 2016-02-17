@@ -44,7 +44,6 @@ function execMaven(mvnExec, arg, callback){
     console.log('Info: mvn '+ arg +' ...')
 
     var args = []
-
     if (util.isWin) {
         args.unshift(mvnExec);
         args.unshift('/c'),
@@ -52,9 +51,11 @@ function execMaven(mvnExec, arg, callback){
         args.push(arg);
         args.push('-Dmaven.test.skip=true');
         mvnExec = process.env.COMSPEC || 'cmd.exe';
+    } else {
+        args.push(arg)
     }
 
-    var mvnPackage    = cp.spawn(mvnExec, args, { cwd:  config.currentPath });
+    var mvnPackage    = cp.spawn(mvnExec, args, { cwd:  config.currentPath, env: process.env });
 
     mvnPackage.stdout.on('data', function (data) {
         console.log(data.toString());
@@ -121,11 +122,16 @@ exports.deploy = function(callback) {
             //删除tomcat解压目录
             deleteFolderRecursive(config.tomcatHome)
             console.log('Info: decompress ' + config.tomcatName + ' ...');
-            new Decompress({mode: '755'})
+            new Decompress({mode: '777'})
                 .src(path.join(config.homePath, config.tomcatName))
                 .dest(config.tomcatHome)
                 .use(Decompress.zip({strip: 1}))
                 .run(function (error) {
+                    fs.readdirSync(path.join(config.tomcatHome, '/bin')).map(function(file){
+                        fs.chmodSync(path.join(config.tomcatHome, '/bin/', file), '777')
+                        //console.log(arguments)
+                    })
+                    //fs.chmodSync(config.tomcatHome, '+x');
                     var removeContextPath = path.join(config.tomcatHome, '/webapps/');
                     deleteFolderRecursive(removeContextPath);
                     if (error) {
@@ -149,6 +155,5 @@ exports.deploy = function(callback) {
 }
 
 if(require.main === module){
-    console.log(11)
     exports.deploy()
 }

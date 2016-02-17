@@ -13,7 +13,7 @@ var configStr = '{\n' +
     '        "localPort": "5050",\n' +
     '        "desc": "local server"\n' +
     '    }],\n' +
-    '    "middleware": [{\n'+
+    '    "middleware_": [{\n'+
     '        "scope": "**/src/**", \n'+
     '        "bin": "./src/main/webapp/viewport/build/main.js" \n'+
     '    }]\n'+

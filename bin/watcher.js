@@ -53,7 +53,6 @@ cp.exec('java -version', {cwd: config.currentPath}, function (error, stdout, std
 
             middlewareHandle(function(){
                 synchFiles();
-                console.log(1)
                 transfer.transfer();
                 wsServerObj = new wsServer();
             })
@@ -172,7 +171,7 @@ function synchFiles(){
         //    pollInterval: 5000
         //}
     }).on('all', function(event, filePath) {
-        var filePathArray = filePath.split('\\'),
+        var filePathArray = filePath.split('/'),
             fileName = filePathArray[filePathArray.length-1],
             distPath = filePath.replace(config.sourceDir, config.targetDir),
             distDictionary = filePath.replace(config.sourceDir, config.targetDir).replace(fileName, '');
@@ -207,8 +206,9 @@ function startupTomcat(callback){
     fs.stat(path.join(config.tomcatHome, '/bin', startTomcatExec), function(err){
         if(err){
             console.error('error: please re-exec "webss deploy"  !!!')
+            console.log(err)
         }else{
-            cp.exec(startTomcatExec, {cwd: path.join(config.tomcatHome, '/bin')}, function (err, stdout, stderr) {
+            cp.exec(path.join(config.tomcatHome, '/bin/', startTomcatExec), {cwd: path.join(config.tomcatHome, '/bin')}, function (err, stdout, stderr) {
                 callback && callback();
             });
         }
