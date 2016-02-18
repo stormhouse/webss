@@ -171,7 +171,7 @@ function synchFiles(){
         //    pollInterval: 5000
         //}
     }).on('all', function(event, filePath) {
-        var filePathArray = filePath.split('/'),
+        var filePathArray = filePath.split(util.isWin ? '\\' : '/'),
             fileName = filePathArray[filePathArray.length-1],
             distPath = filePath.replace(config.sourceDir, config.targetDir),
             distDictionary = filePath.replace(config.sourceDir, config.targetDir).replace(fileName, '');
@@ -197,13 +197,13 @@ function synchFiles(){
 
 function shutdownTomcat(callback){
     console.log('shutdown tomcat ...');
-    cp.exec(shutdownTomcatExec, {cwd: path.join(config.tomcatHome, '/bin')}, function (err, stdout, stderr) {
+    cp.exec(path.join(config.tomcatHome, '/bin/', shutdownTomcatExec), {cwd: path.join(config.tomcatHome, '/bin')}, function (err, stdout, stderr) {
         callback && callback();
     });
 }
 function startupTomcat(callback){
     console.log('start tomcat ...');
-    fs.stat(path.join(config.tomcatHome, '/bin', startTomcatExec), function(err){
+    fs.stat(path.join(config.tomcatHome, '/bin/', startTomcatExec), function(err){
         if(err){
             console.error('error: please re-exec "webss deploy"  !!!')
             console.log(err)
