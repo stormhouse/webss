@@ -7,7 +7,7 @@
         "desc": "local server"
     }],
     "middleware": [{
-        "scope": "**/portal/**", //[]
-        "bin": "./src/main/webapp/viewport/build/main.js" //执行脚本
+        "scope": "**/portal/**",
+        "bin": "./src/main/webapp/viewport/build/main.js"
     }]
 }

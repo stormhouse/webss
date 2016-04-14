@@ -3,7 +3,6 @@
 var fs = require('fs'),
     path = require('path'),
     chokidar = require('chokidar'),
-    cpy = require('cpy'),
     del = require('del'),
     cp = require('child_process'),
     WebSocketServer = require('websocket').server,
@@ -48,14 +47,21 @@ cp.exec('java -version', {cwd: config.currentPath}, function (error, stdout, std
                 console.log('Info: webss deploy succeed')
             })
         }else if(arg === 'server'){
-            shutdownTomcat(startupTomcat);
-        }else if(arg === 'run'){
-
             middlewareHandle(function(){
                 synchFiles();
                 transfer.transfer();
                 wsServerObj = new wsServer();
             })
+            shutdownTomcat(startupTomcat);
+        }else if(arg === 'run'){
+            console.log('Info: [webss run] has deprecated, integration with [webss server]')
+
+            // move to arg=='server'
+            //middlewareHandle(function(){
+            //    synchFiles();
+            //    transfer.transfer();
+            //    wsServerObj = new wsServer();
+            //})
 
         }else{
             util.showHelp();
@@ -184,7 +190,8 @@ function synchFiles(){
             });
         }else{
             fs.unlink(distPath, function(){
-                cpy([filePath], distDictionary, function (err) {
+                //cpy([filePath], distDictionary, function (err) {
+                util.copy(filePath, distDictionary, function(err){
                     console.log('Info: update file -> \n' + distPath);
                     if(config.pageAutoReload){
                         wsServerObj.sendMessage();

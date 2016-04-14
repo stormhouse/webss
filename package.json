@@ -1,6 +1,6 @@
 {
   "name": "webss",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "development javaweb project",
   "author": {
     "name": "stormhouse"
@@ -23,7 +23,6 @@
   },
   "devDependencies": {
     "chokidar": "^1.2.0",
-    "cpy": "^3.4.1",
     "del": "^2.0.2",
     "download": "^4.2.1",
     "download-status": "^2.2.1",
@@ -36,7 +35,6 @@
   },
   "dependencies": {
     "chokidar": "^1.2.0",
-    "cpy": "^3.4.1",
     "del": "^2.0.2",
     "download": "^4.2.1",
     "download-status": "^2.2.1",

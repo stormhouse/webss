@@ -3,7 +3,6 @@ var path = require('path'),
     Decompress = require('decompress'),
     util = require('./util.js'),
     cp = require('child_process'),
-    cpy = require('cpy'),
     del = require('del'),
 
     config = require('./config.js');
@@ -27,7 +26,7 @@ function updateTomcatPort(){
     var ajpPort = 8009 + (parseInt(config.port)-8080);
     var shutdownPort = 8005 + (parseInt(config.port)-8080);
 
-    serverConfig = serverConfig.replace('port="8080"', 'port="'+httpPort+'"' );
+    serverConfig = serverConfig.replace('port="8080"', 'port="'+httpPort+'" URIEncoding="UTF-8"' );
     serverConfig = serverConfig.replace('port="8009"', 'port="'+ajpPort+'"' );
     serverConfig = serverConfig.replace('port="8005"', 'port="'+shutdownPort+'"' );
     fs.writeFileSync(path.join(config.tomcatHome, '/conf/server.xml'), serverConfig);
@@ -80,11 +79,11 @@ function execMaven(mvnExec, arg, callback){
                 })
                 if(warFile.length === 1){
                     sourceWar = warFile[0];
-                    cpy([path.join(config.sourceWarDir, sourceWar)], path.join(config.tomcatHome, '/webapps'), function (err) {
+                    //cpy([path.join(config.sourceWarDir, sourceWar)], path.join(config.tomcatHome, '/webapps'), function (err) {
+                    // 去掉url上的contextName http://stackoverflow.com/questions/715506/tomcat-6-how-to-change-the-root-application
+                    util.copy(path.join(config.sourceWarDir, sourceWar), path.join(config.tomcatHome, '/webapps'), {basename: 'ROOT.war'}, function (err) {
                         console.log('Info: deploy : \n' + sourceWar + ' succeed ')
                         console.log('    ' + path.join(config.tomcatHome, '/webapps'))
-                        // 去掉url上的contextName http://stackoverflow.com/questions/715506/tomcat-6-how-to-change-the-root-application
-                        fs.renameSync(path.join(config.tomcatHome, '/webapps/', sourceWar) , path.join(config.tomcatHome, '/webapps/', 'ROOT.war') )
                         callback && callback();
                     });
                 }else{
