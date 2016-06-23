@@ -1,5 +1,5 @@
 ## webss
-tools for Front-End Developer to develop JavaWeb Project(Maven based)
+Tools for Front-End Developer to develop JavaWeb Project(Maven based)
 
 ## install
 ```
@@ -12,7 +12,7 @@ npm install -g webss
     "webPath": "/",
     "port": "8080",
     "proxies": [{
-        "removeUrl": "http://127.0.0.1:8888",
+        "remoteUrl": "http://127.0.0.1:8888",
         "localPort": "5050",
         "desc": "local server"
     }]

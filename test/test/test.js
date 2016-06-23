@@ -20,3 +20,5 @@ util.copy('./test.js', './test/')
 //
 //console.log(path.resolve("./src/main/webapp/viewport/build/main.js" ))
 
+
+fs.mkdirSync(path.join(path.resolve('.'), '/a/'))

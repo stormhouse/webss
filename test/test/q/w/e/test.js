@@ -4,7 +4,7 @@ var path = require('path')
 var fs = require('fs')
 
 var util = require('../src/util.js')
-util.copy('E:\\20160428-V2.2\\src\\main\\webapp\\portal\\origin\\page\\holder\\version\\version.css', 'C:\\Users\\yazuo-frontend\\.node_mvn_javaweb\\server\\9999\\webapps\\ROOT\\portal\\origin\\page\\holder\\version\\')
+util.copy('./test.js', './test/q/w/e/')
 //http.globalAgent.maxSockets = 5
 
 //for(var i= 0,len=100; i<len; i++) {

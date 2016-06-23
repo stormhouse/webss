@@ -70,35 +70,38 @@ exports.transfer = function (){
 
     config.proxies.forEach(function(objServer){
         var app = connect();
-            var proxy = httpProxy.createProxyServer({
-                target: objServer.remoteUrl
-            })
+        var proxy = httpProxy.createProxyServer({
+            target: objServer.remoteUrl
+        })
 
-            app.use(harmon([], selects, true));
-            app.use(function (req, res) {
-                var startIndex = req.url.indexOf('portal/');
-                if( startIndex > -1){
-                    var p = path.join(config.webPath,  '/src/main/webapp/', req.url.substring(startIndex, req.url.length))
-                    p = p.replace(/\?v=[\d|\.|\w|&|=|-]*/, ''); // 去掉后面的参数 manage.js?v=1.2-6&_=123
-                    fs.readFile(p, function(error, data){
+        app.use(harmon([], selects, true));
+        app.use(function (req, res) {
+            var startIndex = req.url.indexOf('portal/');
+            if( startIndex > -1){
+                var p = path.join(config.webPath,  '/src/main/webapp/', req.url.substring(startIndex, req.url.length))
+                p = p.replace(/\?v=[\d|\.|\w|&|=|-]*/, ''); // 去掉后面的参数 manage.js?v=1.2-6&_=123
+                fs.readFile(p, function(error, data){
 
-                        if(error){
-                            console.error('error: file '+ p + ' not found');
-                            res.writeHead(404, {'source': 'from webss' });
-                            res.write('404 not found ');
-                            res.end();
-                        }else{
-                            res.writeHead(200, {'source': 'from webss'});
-                            res.write(data);
-                            res.end();
-                        }
+                    if(error){
+                        console.error('error: file '+ p + ' not found');
+                        res.writeHead(404, {'source': 'from webss' });
+                        res.write('404 not found ');
+                        res.end();
+                    }else{
+                        res.writeHead(200, {
+                            'Content-Length': Buffer.byteLength(data),
+                            'source': 'from webss'
+                        });
+                        res.write(data);
+                        res.end();
+                    }
 
-                    })
+                })
 
-                }else {
-                    proxy.web(req, res);
-                }
-            })
+            }else {
+                proxy.web(req, res);
+            }
+        })
 
 
         console.log("listening on port "+ objServer.localPort + ' of ', objServer.desc + ' --> '+objServer.remoteUrl);

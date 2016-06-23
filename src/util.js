@@ -16,7 +16,7 @@ var util = {
     log('  server     start tomcat server')
     log('  run        synch files of webproject to tomcat webapps dir, and start proxy')
     log('\n\n\n')
-    },
+  },
   run: function(generateFun){
     var g = generateFun(resume)
     g.next()
@@ -27,7 +27,24 @@ var util = {
         }
         g.next()
       }
-    },
+  },
+  mkdir: function (dirpath, root) {
+    var dirs = dirpath.split(path.sep), dir = dirs.shift(), root = path.join(root || '', dir)
+
+    console.log(dirs.join(path.sep))
+    try { fs.mkdirSync(root) }
+    catch (e) {
+      //dir wasn't made, something went wrong
+      console.log(dirpath)
+      console.log(root)
+      if(!fs.statSync(root).isDirectory()) throw new Error(e);
+    }
+    return !dirs.length || util.mkdir(dirs.join(path.sep), root);
+  },
+  mkdirSync: function (path) {
+    try { fs.mkdirSync(root); }
+    catch (e) {}
+  },
   /**
    *
    * @param src
@@ -49,6 +66,7 @@ var util = {
     try {
       fs.accessSync(dest, fs.F_OK)
     } catch (e) {
+      //util.mkdir(dest)
       fs.mkdirSync(dest)
     }
     basename = opts.basename !== '' ? opts.basename : path.basename(src)
@@ -69,6 +87,6 @@ var util = {
     })
 
     read.pipe(write)
-    }
+  }
 }
 module.exports = util

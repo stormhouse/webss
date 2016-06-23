@@ -56,12 +56,11 @@ cp.exec('java -version', {cwd: config.currentPath}, function (error, stdout, std
         }else if(arg === 'run'){
             console.log('Info: [webss run] has deprecated, integration with [webss server]')
 
-            // move to arg=='server'
-            //middlewareHandle(function(){
-            //    synchFiles();
-            //    transfer.transfer();
-            //    wsServerObj = new wsServer();
-            //})
+            middlewareHandle(function(){
+                synchFiles();
+                transfer.transfer();
+                wsServerObj = new wsServer();
+            })
 
         }else{
             util.showHelp();
@@ -191,6 +190,9 @@ function synchFiles(){
         }else{
             fs.unlink(distPath, function(){
                 //cpy([filePath], distDictionary, function (err) {
+                try {
+                    if (fs.lstatSync(filePath).isDirectory()) return
+                } catch(ex){}
                 util.copy(filePath, distDictionary, function(err){
                     console.log('Info: update file -> \n' + distPath);
                     if(config.pageAutoReload){
