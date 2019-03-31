@@ -30,3 +30,9 @@ Options:
   server     start tomcat server
   run        synch files of webproject to tomcat webapps dir, and start proxy
 ```
+
+## Intro
+- 自动化安装（Tomcat, Maven）部署项目，省去繁杂的环境配置工作
+- 添加类似反向代理功能，指定服务器IP，方便与后台联调接口及连接于测试（线上）环境
+- 在页面中注入JS脚本（WebSocket），实现文件发生变化时，页面自动刷新
+- 抛离了对IDE的依赖，用自己喜欢的编辑器
